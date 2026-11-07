@@ -68,8 +68,8 @@ The mail integration is tested with a local SMTP server; live Gmail delivery mus
 
 ## Public GitHub Pages version
 
-The public site uses direct phone and email contact, as requested. It does not offer online enquiry submission. The Node form/server remains available for local use or a future server deployment.
+The public site includes the enquiry form, with name, email, purpose and message fields. It prepares a prefilled email draft for the visitor to open and send from their email app. It does not claim to save or send an online submission. Direct phone and email contact remain available. The Node form/server remains available for local use or a future server deployment.
 
-`npm run build:pages` creates a static `dist/` containing only HTML, CSS, JavaScript and the three used image assets. The export replaces the local enquiry form with direct contact actions. `.github/workflows/pages.yml` tests and publishes that export on pushes to `main`.
+`npm run build:pages` creates a static `dist/` containing only HTML, CSS, JavaScript and the three used image assets. The export configures the enquiry form to prepare an email draft, since GitHub Pages cannot execute the Node enquiry server. `.github/workflows/pages.yml` tests and publishes that export on pushes to `main`.
 
 Local `.env` values, enquiry records, preview screenshots, original-page backups and unused concept images are excluded from the public repository and deployed artifact.

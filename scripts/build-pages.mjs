@@ -7,17 +7,13 @@ const output = join(root, 'dist');
 await mkdir(join(output, 'assets'), { recursive: true });
 let html = await readFile(join(root, 'index.html'), 'utf8');
 if (!html.includes('<form id="enquiry-form"')) throw new Error('Cannot locate the enquiry form for the Pages export.');
-html = html.replace(/<form id="enquiry-form"[\s\S]*?<\/form>/, `
-  <div class="public-contact-panel reveal">
-    <img src="assets/apartment-interior.png" alt="A warm apartment interior with a planted balcony" width="1536" height="1024" loading="lazy">
-    <h3>Let’s start a conversation.</h3>
-    <p>Tell us about the space you have in mind. We’d love to hear your ideas.</p>
-    <a class="submit-button" href="mailto:virajpawar.nsk2001@gmail.com?subject=Project%20enquiry%20%E2%80%94%20Viraj%20Pawar%20Design%20Studio"><span>Email the studio</span><span aria-hidden="true">↗</span></a>
-    <a class="public-call" href="tel:+917350600441">Or call +91 7350600441 <span aria-hidden="true">↗</span></a>
-  </div>`);
-html = html.replace('Please enable JavaScript for the interactive design journey and enquiry form.', 'Please enable JavaScript for the interactive design journey. You can contact the studio by phone or email.');
+html = html.replace('<form id="enquiry-form"', '<form id="enquiry-form" data-delivery="email"');
+html = html.replace('<span>Send your enquiry</span>', '<span>Prepare enquiry email</span>');
+html = html.replace('Your details are used only to respond to your enquiry.', 'Prepare your enquiry, then open and send the draft from your email app.');
+html = html.replace('<h3>Thank you,<br><em id="visitor-name"></em></h3>', '<h3>Your enquiry,<br><em>ready to send.</em></h3>');
+html = html.replace('Please enable JavaScript for the interactive design journey and enquiry form.', 'Please enable JavaScript for the interactive design journey and enquiry form. You can also contact the studio directly by phone or email.');
 await writeFile(join(output, 'index.html'), html);
 for (const file of ['styles.css', 'app.js']) await copyFile(join(root, file), join(output, file));
-for (const file of ['logo-transparent.png', 'residences.png', 'apartment-interior.png']) await copyFile(join(root, 'assets', file), join(output, 'assets', file));
+for (const file of ['logo-transparent.png', 'residences.png', 'apartment-interior.png', 'arrows.svg']) await copyFile(join(root, 'assets', file), join(output, 'assets', file));
 await writeFile(join(output, '.nojekyll'), '');
-console.log('Built GitHub Pages site in dist/ with phone and email contact.');
+console.log('Built GitHub Pages site in dist/ with an email-draft enquiry form and direct phone/email contact.');

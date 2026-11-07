@@ -165,12 +165,28 @@ form.addEventListener('submit', async event => {
   const valid = Object.keys(validators).map(validateField).every(Boolean);
   if (!valid) { form.querySelector('[aria-invalid=true]').focus(); return; }
   if ($('#website').value) return;
+  const data = Object.fromEntries(new FormData(form));
+  if (form.dataset.delivery === 'email') {
+    const subject = `Project enquiry: ${data.purpose}`;
+    const body = [
+      'Hello Viraj Pawar Design Studio,', '',
+      `Name: ${data.name.trim()}`, `Email: ${data.email.trim()}`,
+      `Purpose: ${data.purpose}`, '', 'About my project:', data.message.trim() || '(No additional details)'
+    ].join('\n');
+    $('#email-draft-link').href = `mailto:virajpawar.nsk2001@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    $('#email-draft-link').hidden = false;
+    $('#receipt-message').textContent = 'Your details are ready. Open the email draft below, then send it from your email app.';
+    $('#receipt').textContent = 'No enquiry has been sent yet.';
+    $('#form-fields').hidden = true;
+    $('#form-success').hidden = false;
+    $('#form-success').focus({ preventScroll: true });
+    return;
+  }
   const button = $('.submit-button');
   const label = $('.submit-button>span');
   button.disabled = true;
   form.setAttribute('aria-busy', 'true');
   label.textContent = 'Sending your enquiry…';
-  const data = Object.fromEntries(new FormData(form));
   try {
     if (location.protocol === 'file:') throw new Error('Please open this website through the Node server (npm start) to send your enquiry.');
     const response = await fetch('/api/enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), signal: AbortSignal.timeout(30000) });
