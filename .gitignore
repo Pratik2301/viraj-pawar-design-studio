@@ -1,0 +1,11 @@
+data/
+node_modules/
+*.log
+.env
+.env.*
+!.env.example
+dist/
+docs/
+index.original.html
+assets/bungalow.png
+assets/interior.png
