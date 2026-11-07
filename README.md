@@ -20,7 +20,7 @@ Open http://localhost:3000. `npm run dev` restarts the server when its source ch
 
 - Transparent version of the supplied logo throughout the header, hero, studio and contact sections; subtle logo reveal animation.
 - Reversible scroll journey: land → progressively drawn four-storey elevation → realistic residential building → apartment interior. Stage buttons also navigate the journey; architectural notes update with each stage. The numbered image markers have been removed.
-- Responsive fixed header/footer, mobile menu, reduced-motion support, keyboard controls.
+- Responsive fixed header, footer in normal page flow, mobile menu, reduced-motion support, keyboard controls.
 - Expandable services with changing image/drawing previews and preselected enquiry purposes.
 - Interactive four-stage design process.
 - Client and server validation for name, email, purpose and optional message; loading, error, retry and receipt states.
@@ -50,7 +50,7 @@ The background `#FFFCF5` was sampled from the supplied logo. Google Fonts suppli
 
 ## Contact and email delivery
 
-The fixed footer has a Contact us link and `tel:+917350600441`. The main Contact us section also offers a direct email link to `virajpawar.nsk2001@gmail.com`.
+The footer has a Contact us link and `tel:+917350600441`. The main Contact us section also offers a direct email link to `virajpawar.nsk2001@gmail.com`.
 
 Every valid form submission is saved in `data/enquiries.jsonl`. When SMTP is configured, it is emailed to the server-configured **ENQUIRY_TO** address, with the visitor as Reply-To and their name, email, purpose, message and enquiry reference in the body. The browser cannot override the recipient. Delivery status is recorded in `data/email-events.jsonl`.
 
