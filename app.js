@@ -189,7 +189,7 @@ form.addEventListener('submit', async event => {
   label.textContent = 'Sending your enquiry…';
   try {
     if (location.protocol === 'file:') throw new Error('Please open this website through the Node server (npm start) to send your enquiry.');
-    const response = await fetch('/api/enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), signal: AbortSignal.timeout(30000) });
+    const response = await fetch(form.dataset.endpoint || '/api/enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), signal: AbortSignal.timeout(30000) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.id) throw new Error(result.error || 'We could not save your enquiry. Please try again.');
     $('#visitor-name').textContent = data.name.trim().split(/\s+/)[0] + '.';

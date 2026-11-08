@@ -9,9 +9,10 @@ const root = dirname(fileURLToPath(import.meta.url));
 const purposes = new Set(['Multistorey residential building', 'New home or bungalow', 'Interior design', 'Planning & drafting', 'Renovation', '3D visualisation', 'Site coordination', 'Something else']);
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 
-export function createApp({ dataDir = join(root, 'data'), mailer = null } = {}) {
+export function createRequestHandler({ dataDir = join(root, 'data'), mailer = null, allowedOrigin = null, requireEmail = false, trustProxy = false } = {}) {
+  // ponytail: limits are per process; use shared rate limiting if traffic spans many instances.
   const submissions = new Map();
-  return createServer(async (req, res) => {
+  return async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -22,27 +23,42 @@ export function createApp({ dataDir = join(root, 'data'), mailer = null } = {}) 
     try {
       const path = new URL(req.url, 'http://localhost').pathname;
       if (path === '/api/enquiries') {
-        if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return json(405, { error: 'Use POST to send an enquiry.' }); }
         if (req.headers.origin) {
           let origin;
           try { origin = new URL(req.headers.origin); } catch { return json(403, { error: 'Invalid request origin.' }); }
-          if (origin.host !== req.headers.host) return json(403, { error: 'Please submit from this website.' });
+          if (allowedOrigin ? origin.origin !== allowedOrigin : origin.host !== req.headers.host) return json(403, { error: 'Please submit from this website.' });
+          if (allowedOrigin) {
+            res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+            res.setHeader('Vary', 'Origin');
+          }
         }
+        if (req.method === 'OPTIONS' && allowedOrigin) {
+          res.writeHead(204, { 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '600' });
+          return res.end();
+        }
+        if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return json(405, { error: 'Use POST to send an enquiry.' }); }
+        if (requireEmail && !mailer) return json(503, { error: 'Online enquiries are temporarily unavailable. Please email or call the studio.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(415, { error: 'Send a JSON request.' });
-        const ip = req.socket.remoteAddress;
+        const ip = trustProxy ? req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress : req.socket.remoteAddress;
         const now = Date.now();
         for (const [key, value] of submissions) if (now - value.start > 600000) submissions.delete(key);
         const limit = submissions.get(ip) || { start: now, count: 0 };
         if (limit.count >= 20) { res.setHeader('Retry-After', '600'); return json(429, { error: 'Too many enquiries. Please try again in ten minutes.' }); }
-        const chunks = [];
-        let size = 0;
-        for await (const chunk of req) {
-          size += chunk.length;
-          if (size > 8192) { json(413, { error: 'Your enquiry is too long.' }); return; }
-          chunks.push(chunk);
+        let body = req.body;
+        if (body === undefined) {
+          const chunks = [];
+          let size = 0;
+          for await (const chunk of req) {
+            size += chunk.length;
+            if (size > 8192) return json(413, { error: 'Your enquiry is too long.' });
+            chunks.push(chunk);
+          }
+          body = Buffer.concat(chunks).toString('utf8');
         }
-        let body;
-        try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return json(400, { error: 'Please send a valid enquiry.' }); }
+        if (Buffer.byteLength(typeof body === 'string' ? body : JSON.stringify(body)) > 8192) return json(413, { error: 'Your enquiry is too long.' });
+        if (typeof body === 'string') {
+          try { body = JSON.parse(body); } catch { return json(400, { error: 'Please send a valid enquiry.' }); }
+        }
         if (!body || typeof body !== 'object' || Array.isArray(body)) return json(400, { error: 'Please check your details.' });
         const { name, email, purpose, message = '', website = '' } = body;
         if (typeof name !== 'string' || name.trim().length < 2 || name.length > 80 ||
@@ -65,6 +81,7 @@ export function createApp({ dataDir = join(root, 'data'), mailer = null } = {}) 
         try {
           await appendFile(join(dataDir, 'email-events.jsonl'), JSON.stringify({ id: record.id, status: emailStatus, recordedAt: new Date().toISOString() }) + '\n', { mode: 0o600 });
         } catch { console.error(`Could not record notification status for ${record.id}.`); }
+        if (requireEmail && emailStatus !== 'sent') return json(503, { error: 'We could not email your enquiry. Please try again shortly, or contact the studio directly.' });
         return json(201, { id: record.id, emailStatus });
       }
       if (!['GET', 'HEAD'].includes(req.method)) return json(405, { error: 'Method not allowed.' });
@@ -77,7 +94,11 @@ export function createApp({ dataDir = join(root, 'data'), mailer = null } = {}) 
       res.writeHead(200, { 'Content-Type': mime[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch { if (!res.headersSent) json(500, { error: 'Something went wrong. Please try again.' }); else res.end(); }
-  });
+  };
+}
+
+export function createApp(options) {
+  return createServer(createRequestHandler(options));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

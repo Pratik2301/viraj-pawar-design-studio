@@ -26,7 +26,7 @@ Open http://localhost:3000. `npm run dev` restarts the server when its source ch
 - Client and server validation for name, email, purpose and optional message; loading, error, retry and receipt states.
 - `POST /api/enquiries` saves enquiries in `data/enquiries.jsonl`. This folder is excluded from public routes and Git. No public endpoint exposes submissions.
 
-The server binds to localhost. Public hosting is not configured. Enquiries are saved before email delivery is attempted; the form distinguishes an emailed enquiry from one that was only saved locally.
+The local server binds to localhost. The website is published on GitHub Pages; SMTP hosting requires the separate endpoint described below. Local enquiries are saved before email delivery is attempted; the form distinguishes an emailed enquiry from one that was only saved locally.
 
 ## Check
 
@@ -63,7 +63,7 @@ The local `.env` has been created with Gmail defaults and an empty password. It 
 
 With no credential, the enquiry is saved and the visitor sees direct contact details; the site does not claim an email was sent. SMTP errors also preserve the enquiry and record a failed status. There is no automatic resend worker; review failed events before resending to avoid duplicates.
 
-The mail integration is tested with a local SMTP server; live Gmail delivery must be verified after the credential is configured. Seven integration checks cover email addressing/content, SMTP failure, missing credentials and the existing validation/storage behavior. See [Nodemailer SMTP documentation](https://nodemailer.com/smtp) for transport settings.
+The mail integration is tested with a local SMTP server; live Gmail delivery must be verified after the credential is configured. Tests cover email addressing/content, SMTP failure, missing credentials and validation/storage behavior. See [Nodemailer SMTP documentation](https://nodemailer.com/smtp) for transport settings.
 
 
 ## Public GitHub Pages version
@@ -73,3 +73,25 @@ The public site includes the enquiry form, with name, email, purpose and message
 `npm run build:pages` creates a static `dist/` containing only HTML, CSS, JavaScript and the three used image assets. The export configures the enquiry form to prepare an email draft, since GitHub Pages cannot execute the Node enquiry server. `.github/workflows/pages.yml` tests and publishes that export on pushes to `main`.
 
 Local `.env` values, enquiry records, preview screenshots, original-page backups and unused concept images are excluded from the public repository and deployed artifact.
+
+## Enable online SMTP enquiries
+
+`api/enquiries.js` is a Vercel Node function that reuses the local server's validation and mail delivery. It permits browser requests from `https://pratik2301.github.io` and reports success only after SMTP accepts the email. The function awaits delivery before returning. Credentials stay on the backend; never add them to the GitHub Pages build variables or frontend files.
+
+1. Import this repository into Vercel with the supplied `vercel.json` (Other framework, no build command, `public` output). Disable deployment protection for the production API so website visitors can reach it.
+2. Configure these Vercel **Production environment variables** securely, then deploy:
+
+   ```text
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=465
+   SMTP_USER=virajpawar.nsk2001@gmail.com
+   SMTP_PASS=<Google app password; never commit>
+   MAIL_FROM=virajpawar.nsk2001@gmail.com
+   ENQUIRY_TO=virajpawar.nsk2001@gmail.com
+   ALLOWED_ORIGIN=https://pratik2301.github.io
+   ```
+
+3. Verify a real enquiry reaches the inbox through `https://<production-host>/api/enquiries`. Missing credentials and SMTP failures must return an error, not a successful receipt.
+4. Only after verification, add the GitHub Actions repository **variable** `ENQUIRY_API_URL` with that HTTPS endpoint and rerun the Pages workflow. The export then uses the server instead of preparing email drafts. Delete that variable and rebuild to restore email drafts.
+
+The Vercel function writes temporary diagnostic records under `/tmp`; these are **not durable enquiry storage**. Delivered email is the online record. The local Node server still saves durable records under `data/`. Rate limiting is per function instance, with a honeypot and bounded validated input; use shared rate limiting if traffic requires it. SMTP acceptance does not guarantee inbox placement; check spam during the live delivery test.

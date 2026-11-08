@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "test": "node --test server.test.mjs mail.test.mjs",
+    "test": "node --test server.test.mjs mail.test.mjs cloud.test.mjs",
     "build:pages": "node scripts/build-pages.mjs"
   },
   "engines": {

@@ -1,0 +1,9 @@
+.env*
+!.env.example
+.git
+.vercel
+data
+docs
+dist
+node_modules
+index.original.html

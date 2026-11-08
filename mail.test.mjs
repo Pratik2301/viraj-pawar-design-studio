@@ -32,10 +32,10 @@ test('a submission emails the fixed studio address with visitor reply-to and all
   const transport = nodemailer.createTransport({ host: '127.0.0.1', port: smtp.address().port, secure: false });
   const dataDir = await mkdtemp(join(tmpdir(), 'vpds-mail-'));
   const mailer = createEnquiryMailer({ SMTP_USER: 'sender@example.com', SMTP_PASS: 'test-password', MAIL_FROM: 'sender@example.com', ENQUIRY_TO: 'studio@example.com' }, transport);
-  const app = createApp({ dataDir, mailer });
+  const app = createApp({ dataDir, mailer, requireEmail: true, allowedOrigin: 'https://pratik2301.github.io' });
   await new Promise(resolve => app.listen(0, '127.0.0.1', resolve));
   try {
-    const response = await fetch(`http://127.0.0.1:${app.address().port}/api/enquiries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Website Visitor', email: 'visitor@example.com', purpose: 'Interior design', message: 'Please design my apartment.', to: 'unwanted@example.com' }) });
+    const response = await fetch(`http://127.0.0.1:${app.address().port}/api/enquiries`, { method: 'POST', headers: { Origin: 'https://pratik2301.github.io', 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Website Visitor', email: 'visitor@example.com', purpose: 'Interior design', message: 'Please design my apartment.', to: 'unwanted@example.com' }) });
     const result = await response.json();
     assert.equal(response.status, 201);
     assert.equal(result.emailStatus, 'sent');

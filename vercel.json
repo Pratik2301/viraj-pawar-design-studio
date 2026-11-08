@@ -1,0 +1,8 @@
+{
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": "public",
+  "functions": {
+    "api/enquiries.js": { "maxDuration": 30 }
+  }
+}
