@@ -1,8 +1,8 @@
 # Viraj Pawar Design Studio
 
-[Public website](https://pratik2301.github.io/viraj-pawar-design-studio/)
+[Public website](https://vpds.org.in/) · [GitHub Pages mirror](https://pratik2301.github.io/viraj-pawar-design-studio/)
 
-The Vercel project also serves the complete website at [the Vercel production address](https://viraj-pawar-design-studio.vercel.app/). `vpds.org.in` is configured as the primary custom domain, with `www.vpds.org.in` redirecting to it; DNS validation must complete before the custom addresses are usable.
+The Vercel project serves the complete website at `vpds.org.in`, with `www.vpds.org.in` permanently redirecting to it. DNS validation, HTTPS and a real SMTP enquiry from the custom domain were verified on 9 November 2026. Some resolvers may temporarily retain the previous parking records while their caches expire. [The Vercel production address](https://viraj-pawar-design-studio.vercel.app/) also remains available.
 
 A responsive architecture landing page based on the supplied logo and `index.html`. The original page is preserved as `index.original.html`.
 
