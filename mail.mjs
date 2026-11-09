@@ -4,7 +4,7 @@ export function createEnquiryMailer(env = process.env, transport) {
   if (!env.SMTP_USER || !env.SMTP_PASS) return null;
   const port = Number(env.SMTP_PORT || 465);
   const sender = env.MAIL_FROM || env.SMTP_USER;
-  const recipient = env.ENQUIRY_TO || 'virajpawar.nsk2001@gmail.com';
+  const recipient = env.ENQUIRY_TO || 'virajpawar.nsk225@gmail.com';
   const smtp = transport || nodemailer.createTransport({
     host: env.SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465,
     requireTLS: port !== 465,

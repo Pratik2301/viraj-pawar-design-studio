@@ -50,7 +50,7 @@ The background `#FFFCF5` was sampled from the supplied logo. Google Fonts suppli
 
 ## Contact and email delivery
 
-The footer has a Contact us link and `tel:+917350600441`. The main Contact us section also offers a direct email link to `virajpawar.nsk2001@gmail.com`.
+The footer has a Contact us link and `tel:+917350600441`. The main Contact us section also offers a direct email link to `virajpawar.nsk225@gmail.com`.
 
 Every valid form submission is saved in `data/enquiries.jsonl`. When SMTP is configured, it is emailed to the server-configured **ENQUIRY_TO** address, with the visitor as Reply-To and their name, email, purpose, message and enquiry reference in the body. The browser cannot override the recipient. Delivery status is recorded in `data/email-events.jsonl`.
 
@@ -84,10 +84,10 @@ Local `.env` values, enquiry records, preview screenshots, original-page backups
    ```text
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=465
-   SMTP_USER=virajpawar.nsk2001@gmail.com
+   SMTP_USER=virajpawar.nsk225@gmail.com
    SMTP_PASS=<Google app password; never commit>
-   MAIL_FROM=virajpawar.nsk2001@gmail.com
-   ENQUIRY_TO=virajpawar.nsk2001@gmail.com
+   MAIL_FROM=virajpawar.nsk225@gmail.com
+   ENQUIRY_TO=virajpawar.nsk225@gmail.com
    ALLOWED_ORIGIN=https://pratik2301.github.io
    ```
 

@@ -173,7 +173,7 @@ form.addEventListener('submit', async event => {
       `Name: ${data.name.trim()}`, `Email: ${data.email.trim()}`,
       `Purpose: ${data.purpose}`, '', 'About my project:', data.message.trim() || '(No additional details)'
     ].join('\n');
-    $('#email-draft-link').href = `mailto:virajpawar.nsk2001@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    $('#email-draft-link').href = `mailto:virajpawar.nsk225@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     $('#email-draft-link').hidden = false;
     $('#receipt-message').textContent = 'Your details are ready. Open the email draft below, then send it from your email app.';
     $('#receipt').textContent = 'No enquiry has been sent yet.';
@@ -195,7 +195,7 @@ form.addEventListener('submit', async event => {
     $('#visitor-name').textContent = data.name.trim().split(/\s+/)[0] + '.';
     $('#receipt-message').textContent = result.emailStatus === 'sent'
       ? 'Your enquiry has been emailed to the studio. We look forward to speaking with you.'
-      : 'Your enquiry has been saved. You can also reach us directly at +91 7350600441 or virajpawar.nsk2001@gmail.com.';
+      : 'Your enquiry has been saved. You can also reach us directly at +91 7350600441 or virajpawar.nsk225@gmail.com.';
     $('#receipt').textContent = `Your reference: ${result.id}`;
     $('#form-fields').hidden = true;
     $('#form-success').hidden = false;
