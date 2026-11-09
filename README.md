@@ -68,9 +68,9 @@ The mail integration is tested with a local SMTP server; live Gmail delivery mus
 
 ## Public GitHub Pages version
 
-The public site includes the enquiry form, with name, email, purpose and message fields. It prepares a prefilled email draft for the visitor to open and send from their email app. It does not claim to save or send an online submission. Direct phone and email contact remain available. The Node form/server remains available for local use or a future server deployment.
+The public site includes the enquiry form, with name, email, purpose and message fields. GitHub's `ENQUIRY_API_URL` repository variable connects it to `https://viraj-pawar-design-studio.vercel.app/api/enquiries`. The endpoint sends enquiries to `virajpawar.nsk225@gmail.com` and returns a receipt only after SMTP accepts delivery. Direct phone and email contact remain available.
 
-`npm run build:pages` creates a static `dist/` containing only HTML, CSS, JavaScript and the three used image assets. The export configures the enquiry form to prepare an email draft, since GitHub Pages cannot execute the Node enquiry server. `.github/workflows/pages.yml` tests and publishes that export on pushes to `main`.
+`npm run build:pages` creates a static `dist/` containing only HTML, CSS, JavaScript and the used assets. With `ENQUIRY_API_URL` set it connects the form to the hosted server. Without that variable it prepares an email draft for the visitor to send manually. `.github/workflows/pages.yml` tests and publishes that export on pushes to `main`.
 
 Local `.env` values, enquiry records, preview screenshots, original-page backups and unused concept images are excluded from the public repository and deployed artifact.
 
