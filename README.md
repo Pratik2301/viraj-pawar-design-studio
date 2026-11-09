@@ -2,6 +2,8 @@
 
 [Public website](https://pratik2301.github.io/viraj-pawar-design-studio/)
 
+The Vercel project also serves the complete website at [the Vercel production address](https://viraj-pawar-design-studio.vercel.app/). `vpds.org.in` is configured as the primary custom domain, with `www.vpds.org.in` redirecting to it; DNS validation must complete before the custom addresses are usable.
+
 A responsive architecture landing page based on the supplied logo and `index.html`. The original page is preserved as `index.original.html`.
 
 ## Run locally
@@ -76,9 +78,9 @@ Local `.env` values, enquiry records, preview screenshots, original-page backups
 
 ## Enable online SMTP enquiries
 
-`api/enquiries.js` is a Vercel Node function that reuses the local server's validation and mail delivery. It permits browser requests from `https://pratik2301.github.io` and reports success only after SMTP accepts the email. The function awaits delivery before returning. Credentials stay on the backend; never add them to the GitHub Pages build variables or frontend files.
+`api/enquiries.js` is a Vercel Node function that reuses the local server's validation and mail delivery. It permits browser requests from the GitHub Pages origin, `https://vpds.org.in`, `https://www.vpds.org.in` and the production Vercel origin, and reports success only after SMTP accepts the email. An optional `ALLOWED_ORIGIN` environment variable overrides that list with comma-separated origins. The function awaits delivery before returning. Credentials stay on the backend; never add them to the GitHub Pages build variables or frontend files.
 
-1. Import this repository into Vercel with the supplied `vercel.json` (Other framework, no build command, `public` output). Disable deployment protection for the production API so website visitors can reach it.
+1. Import this repository into Vercel with the supplied `vercel.json` (Other framework, `npm run build:vercel` build command, `dist` output). The Vercel export uses the same-origin `/api/enquiries` endpoint. Disable deployment protection for the production API so website visitors can reach it.
 2. Configure these Vercel **Production environment variables** securely, then deploy:
 
    ```text
@@ -88,10 +90,21 @@ Local `.env` values, enquiry records, preview screenshots, original-page backups
    SMTP_PASS=<Google app password; never commit>
    MAIL_FROM=virajpawar.nsk225@gmail.com
    ENQUIRY_TO=virajpawar.nsk225@gmail.com
-   ALLOWED_ORIGIN=https://pratik2301.github.io
+   ALLOWED_ORIGIN=https://pratik2301.github.io,https://vpds.org.in,https://www.vpds.org.in,https://viraj-pawar-design-studio.vercel.app
    ```
 
 3. Verify a real enquiry reaches the inbox through `https://<production-host>/api/enquiries`. Missing credentials and SMTP failures must return an error, not a successful receipt.
 4. Only after verification, add the GitHub Actions repository **variable** `ENQUIRY_API_URL` with that HTTPS endpoint and rerun the Pages workflow. The export then uses the server instead of preparing email drafts. Delete that variable and rebuild to restore email drafts.
 
 The Vercel function writes temporary diagnostic records under `/tmp`; these are **not durable enquiry storage**. Delivered email is the online record. The local Node server still saves durable records under `data/`. Rate limiting is per function instance, with a honeypot and bounded validated input; use shared rate limiting if traffic requires it. SMTP acceptance does not guarantee inbox placement; check spam during the live delivery test.
+
+## Custom domain DNS
+
+Vercel's domain settings currently request these GoDaddy records. Verify values in the dashboard before future DNS changes:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| A | @ | 216.198.79.1 |
+| CNAME | www | f87fa2f088579de8.vercel-dns-017.com. |
+
+Replace conflicting website records only. Preserve the existing Google MX records, TXT verification/SPF records and nameservers. Vercel provisions HTTPS after validation. Test the root domain, the www redirect, assets and enquiry submission after DNS propagates.

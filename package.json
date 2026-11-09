@@ -7,7 +7,8 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "test": "node --test server.test.mjs mail.test.mjs cloud.test.mjs",
-    "build:pages": "node scripts/build-pages.mjs"
+    "build:pages": "node scripts/build-pages.mjs",
+    "build:vercel": "node scripts/build-pages.mjs --vercel"
   },
   "engines": {
     "node": ">=20.12.0"

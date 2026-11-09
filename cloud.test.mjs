@@ -9,6 +9,21 @@ import nodemailer from 'nodemailer';
 import { createEnquiryMailer } from './mail.mjs';
 
 const origin = 'https://pratik2301.github.io';
+test('custom domain and Pages origins are allowed while lookalike domains are rejected', async () => {
+  const app = createServer(createRequestHandler({ allowedOrigin: [origin, 'https://vpds.org.in', 'https://www.vpds.org.in'], requireEmail: true }));
+  await new Promise(resolve => app.listen(0, '127.0.0.1', resolve));
+  const endpoint = `http://127.0.0.1:${app.address().port}/api/enquiries`;
+  try {
+    for (const allowed of [origin, 'https://vpds.org.in', 'https://www.vpds.org.in']) {
+      const response = await fetch(endpoint, { method: 'OPTIONS', headers: { Origin: allowed } });
+      assert.equal(response.status, 204);
+      assert.equal(response.headers.get('access-control-allow-origin'), allowed);
+    }
+    const denied = await fetch(endpoint, { method: 'OPTIONS', headers: { Origin: 'https://vpds.org.in.unrelated.example' } });
+    assert.equal(denied.status, 403);
+    assert.equal(denied.headers.get('access-control-allow-origin'), null);
+  } finally { await new Promise(resolve => app.close(resolve)); }
+});
 test('cloud endpoint allows the Pages origin and rejects unconfigured delivery', async () => {
   const dataDir = await mkdtemp(join(tmpdir(), 'vpds-cloud-'));
   const app = createServer(createRequestHandler({ dataDir, allowedOrigin: origin, requireEmail: true }));

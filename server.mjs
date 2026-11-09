@@ -10,6 +10,7 @@ const purposes = new Set(['Multistorey residential building', 'New home or bunga
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 
 export function createRequestHandler({ dataDir = join(root, 'data'), mailer = null, allowedOrigin = null, requireEmail = false, trustProxy = false } = {}) {
+  const allowedOrigins = new Set([allowedOrigin].flat().filter(Boolean));
   // ponytail: limits are per process; use shared rate limiting if traffic spans many instances.
   const submissions = new Map();
   return async (req, res) => {
@@ -26,13 +27,13 @@ export function createRequestHandler({ dataDir = join(root, 'data'), mailer = nu
         if (req.headers.origin) {
           let origin;
           try { origin = new URL(req.headers.origin); } catch { return json(403, { error: 'Invalid request origin.' }); }
-          if (allowedOrigin ? origin.origin !== allowedOrigin : origin.host !== req.headers.host) return json(403, { error: 'Please submit from this website.' });
-          if (allowedOrigin) {
-            res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+          if (allowedOrigins.size ? !allowedOrigins.has(origin.origin) : origin.host !== req.headers.host) return json(403, { error: 'Please submit from this website.' });
+          if (allowedOrigins.size) {
+            res.setHeader('Access-Control-Allow-Origin', origin.origin);
             res.setHeader('Vary', 'Origin');
           }
         }
-        if (req.method === 'OPTIONS' && allowedOrigin) {
+        if (req.method === 'OPTIONS' && allowedOrigins.size) {
           res.writeHead(204, { 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '600' });
           return res.end();
         }

@@ -1,7 +1,7 @@
 {
   "framework": null,
-  "buildCommand": "",
-  "outputDirectory": "public",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist",
   "functions": {
     "api/enquiries.js": { "maxDuration": 30 }
   }
